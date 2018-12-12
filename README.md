@@ -8,6 +8,7 @@ Kubernetes mutating admission webhook to automatically annotate pods.
 Features:
 - Automatically annotate new pods with certain labels
 - YAML-based configuration for multiple rules
+- Built-in Prometheus metrics exporter
 
 Configurations:
 
