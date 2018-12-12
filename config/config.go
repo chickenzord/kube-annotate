@@ -8,6 +8,9 @@ var (
 	//BindAddress where to listen
 	BindAddress string
 
+	//BindAddressInternal where to listen
+	BindAddressInternal string
+
 	//TLSEnabled is TLS enabled
 	TLSEnabled bool
 
@@ -29,4 +32,5 @@ func init() {
 	} else {
 		BindAddress = ":8080"
 	}
+	BindAddressInternal = ":8081"
 }
