@@ -1,4 +1,5 @@
-IMAGE ?= chickenzord/kube-annotate
+TAG ?= latest
+IMAGE ?= chickenzord/kube-annotate:$(TAG)
 
 build:
 	docker build -t $(IMAGE) .

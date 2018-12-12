@@ -42,7 +42,7 @@ func main() {
 		ReadTimeout:  5 * time.Second,
 	}
 
-	mLogger := negronilogrus.NewMiddlewareFromLogger(log, config.AppName)
+	mLogger := negronilogrus.NewMiddlewareFromLogger(log.Logger, config.AppName)
 	mProm := promnegroni.Handler("", prommiddleware.NewDefault())
 
 	rServer := mux.NewRouter()

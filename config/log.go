@@ -6,6 +6,9 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+//CustomLogger logrus logger with helper methods
+type CustomLogger struct{ *logrus.Logger }
+
 var (
 	//LogLevel app-wide logger level
 	LogLevel logrus.Level
@@ -14,7 +17,7 @@ var (
 	LogFormat logrus.Formatter
 
 	//AppLogger app-wide logger
-	AppLogger *logrus.Logger
+	AppLogger *CustomLogger
 )
 
 func init() {
@@ -29,7 +32,12 @@ func init() {
 		LogFormat = &logrus.TextFormatter{}
 	}
 
-	AppLogger = logrus.New()
+	AppLogger = &CustomLogger{logrus.New()}
 	AppLogger.SetLevel(LogLevel)
 	AppLogger.SetFormatter(LogFormat)
+}
+
+//WithData embed data field
+func (l *CustomLogger) WithData(data interface{}) *logrus.Entry {
+	return l.WithField("data", data)
 }

@@ -48,21 +48,21 @@ func mutationRequired(metadata *metav1.ObjectMeta) bool {
 
 func parseBody(r *http.Request) (*v1beta1.AdmissionReview, error) {
 	if r.ContentLength == 0 {
-		return nil, errors.New("Empty Body")
+		return nil, errors.New("empty body")
 	}
 
 	if contentType := r.Header.Get("Content-Type"); contentType != "application/json" {
-		return nil, fmt.Errorf("Invalid content type: %s", contentType)
+		return nil, fmt.Errorf("invalid content type: %s", contentType)
 	}
 
 	data, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		return nil, fmt.Errorf("Cannot read body: %v", err)
+		return nil, fmt.Errorf("cannot read body: %v", err)
 	}
 
 	result := v1beta1.AdmissionReview{}
 	if _, _, err := deserializer.Decode(data, nil, &result); err != nil {
-		return nil, fmt.Errorf("Cannot deserialize: %v", err)
+		return nil, fmt.Errorf("cannot deserialize data to AdmissionReview: %v", err)
 	}
 
 	return &result, nil
@@ -80,7 +80,7 @@ func respond(review *v1beta1.AdmissionReview, response *v1beta1.AdmissionRespons
 }
 
 func respondWithError(review *v1beta1.AdmissionReview, err error) *v1beta1.AdmissionReview {
-	log.Errorf("Error mutating Pod: %v", err)
+	log.WithData(review).WithError(err).Errorf("error mutating pod")
 	return respond(review, &v1beta1.AdmissionResponse{
 		Result: &metav1.Status{
 			Message: err.Error(),
@@ -101,7 +101,7 @@ func respondWithPatches(review *v1beta1.AdmissionReview, patches []Patch) *v1bet
 		return respondWithError(review, errors.New("Cannot serialize patches to JSON"))
 	}
 
-	log.Infof("Mutating Pod with %d patch(es)", len(patches))
+	log.WithData(review).Infof("Mutating Pod with %d patch(es)", len(patches))
 	return respond(review, &v1beta1.AdmissionResponse{
 		Allowed: true,
 		Patch:   patchesBytes,
@@ -138,16 +138,10 @@ func createPatchesFromAnnotations(base, extra map[string]string) []Patch {
 func mutate(review *v1beta1.AdmissionReview) *v1beta1.AdmissionReview {
 	var pod corev1.Pod
 	if err := json.Unmarshal(review.Request.Object.Raw, &pod); err != nil {
-		return respondWithError(review, errors.New("Cannot deserialize Pod from AdmissionRequest"))
+		return respondWithError(review, errors.New("cannot deserialize pod from AdmissionRequest"))
 	}
 
-	// log
-	podObject, err := json.Marshal(pod)
-	if err != nil {
-		log.Errorf("Cannot serialize Pod: %v", err)
-	}
-	log.Debug(string(podObject))
-
+	log.WithData(review).Debug("processing AdmissionReview")
 	for _, rule := range config.Rules {
 		if rule.Selector.AsSelector().Matches(labels.Set(pod.Labels)) {
 			return respondWithPatches(review, createPatchesFromAnnotations(pod.Annotations, rule.Annotations))
