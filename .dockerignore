@@ -4,5 +4,5 @@
 Dockerfile
 Makefile
 /vendor/
-
+/example/
 /kube/

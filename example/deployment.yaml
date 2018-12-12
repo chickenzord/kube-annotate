@@ -1,0 +1,64 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: kube-annotate
+  name: kube-annotate
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: kube-annotate
+  template:
+    metadata:
+      labels:
+        app: kube-annotate
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '8081'
+    spec:
+      containers:
+      - name: kube-annotate
+        image: docker.io/chickenzord/kube-annotate:v0.2.1
+        imagePullPolicy: Always
+        env:
+        - name: TLS_ENABLED
+          value: 'true'
+        - name: TLS_CRT
+          value: /var/run/secrets/tls/tls.crt
+        - name: TLS_KEY
+          value: /var/run/secrets/tls/tls.key
+        - name: RULES_FILE
+          value: /etc/kube-annotate/rules.yaml
+        - name: LOG_FORMAT
+          value: json
+        - name: LOG_LEVEL
+          value: info
+        ports:
+        - name: https
+          containerPort: 8443
+        - name: http-internal
+          containerPort: 8081
+        readinessProbe:
+          httpGet:
+            port: http-internal
+            path: /health
+            scheme: HTTP
+        livenessProbe:
+          httpGet:
+            port: http-internal
+            path: /health
+            scheme: HTTP
+        volumeMounts:
+        - name: tls
+          mountPath: /var/run/secrets/tls
+        - name: config
+          mountPath: /etc/kube-annotate
+      volumes:
+      - name: tls
+        secret:
+          # NOTE: this certificate must be created beforehand
+          secretName: kube-annotate-tls
+      - name: config
+        configMap:
+          name: kube-annotate-config

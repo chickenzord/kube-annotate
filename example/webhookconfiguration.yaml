@@ -1,0 +1,24 @@
+apiVersion: admissionregistration.k8s.io/v1beta1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: kube-annotate
+  labels:
+    app: kube-annotate
+webhooks:
+  - name: kube-annotate.example.com
+    clientConfig:
+      service:
+        name: kube-annotate
+        namespace: kube-apps # NOTE: replace this with namespace where you deploy `kube-annotate`
+        path: "/mutate"
+      # NOTE: this CA_BUNDLE must be replaced with base64-encoded bundle from your cluster
+      caBundle: ${CA_BUNDLE}
+    rules:
+      - operations: [ "CREATE" ]
+        apiGroups: [""]
+        apiVersions: ["v1"]
+        resources: ["pods"]
+    # NOTE: comment out lines below if you want to allow all namespaces
+    namespaceSelector:
+      matchLabels:
+        kube-annotate: 'enabled'
