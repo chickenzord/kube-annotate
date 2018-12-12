@@ -13,6 +13,9 @@ import (
 	"github.com/chickenzord/kube-annotate/web"
 	"github.com/gorilla/mux"
 	negronilogrus "github.com/meatballhat/negroni-logrus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	prommiddleware "github.com/slok/go-prometheus-middleware"
+	promnegroni "github.com/slok/go-prometheus-middleware/negroni"
 	"github.com/urfave/negroni"
 )
 
@@ -29,8 +32,7 @@ func main() {
 
 	rInternal := mux.NewRouter()
 	rInternal.HandleFunc("/health", web.HealthHandler)
-	rInternal.HandleFunc("/metrics", web.MetricsHandler)
-	rInternal.HandleFunc("/rules", web.RulesHandler)
+	rInternal.Handle("/metrics", promhttp.Handler())
 	nInternal := negroni.New()
 	nInternal.UseHandler(rInternal)
 	internal := &http.Server{
@@ -40,9 +42,13 @@ func main() {
 		ReadTimeout:  5 * time.Second,
 	}
 
+	mLogger := negronilogrus.NewMiddlewareFromLogger(log, config.AppName)
+	mProm := promnegroni.Handler("", prommiddleware.NewDefault())
+
 	rServer := mux.NewRouter()
-	rServer.Handle("/mutate", &annotator.Annotator{})
-	nServer := negroni.New(negronilogrus.NewMiddlewareFromLogger(log, "kube-annotate"))
+	rServer.HandleFunc("/mutate", annotator.MutateHandler)
+	rServer.HandleFunc("/rules", annotator.RulesHandler)
+	nServer := negroni.New(mLogger, mProm)
 	nServer.UseHandler(rServer)
 	server := &http.Server{
 		Handler:      nServer,

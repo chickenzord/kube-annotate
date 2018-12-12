@@ -5,10 +5,13 @@ import (
 )
 
 var (
-	//BindAddress where to listen
+	//AppName name of the app
+	AppName string
+
+	//BindAddress where app server should listen
 	BindAddress string
 
-	//BindAddressInternal where to listen
+	//BindAddressInternal where internal server should listen
 	BindAddressInternal string
 
 	//TLSEnabled is TLS enabled
@@ -22,6 +25,12 @@ var (
 )
 
 func init() {
+	if val, ok := os.LookupEnv("APP_NAME"); ok {
+		AppName = val
+	} else {
+		AppName = "kube-annotate"
+	}
+
 	TLSEnabled = os.Getenv("TLS_ENABLED") == "true"
 	TLSCert = os.Getenv("TLS_CRT")
 	TLSKey = os.Getenv("TLS_KEY")

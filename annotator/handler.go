@@ -4,13 +4,16 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"github.com/chickenzord/kube-annotate/config"
 )
 
 //Annotator annotate pod admission
 type Annotator struct {
 }
 
-func (annotator *Annotator) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+//MutateHandler handles admission mutation
+func MutateHandler(w http.ResponseWriter, r *http.Request) {
 	admissionReview, err := parseBody(r)
 	if err != nil {
 		http.Error(w, "Cannot parse body", http.StatusBadRequest)
@@ -27,4 +30,11 @@ func (annotator *Annotator) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		log.Errorf("Can't write response: %v", err)
 		http.Error(w, fmt.Sprintf("could not write response: %v", err), http.StatusInternalServerError)
 	}
+}
+
+//RulesHandler handles rules
+func RulesHandler(w http.ResponseWriter, r *http.Request) {
+	payload, _ := json.Marshal(config.Rules)
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprint(w, string(payload))
 }
