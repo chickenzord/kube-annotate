@@ -9,6 +9,7 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 )
 
+//Rule defines annotation rule
 type Rule struct {
 	Selector    labels.Set        `yaml:"selector" json:"selector"`
 	Annotations map[string]string `yaml:"annotations" json:"annotations"`

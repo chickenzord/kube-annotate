@@ -3,9 +3,9 @@
 Kubernetes mutating admission webhook to automatically annotate pods.
 
 TODO:
-- bind internal endpoints (health, metrics) to separate port
+- ~~bind internal endpoints (health, metrics) to separate port~~
 - proper request/response logging
-- prometheus exporter
+- ~~prometheus exporter~~
 - helm chart
 
 ---
