@@ -113,26 +113,33 @@ func respondWithPatches(review *v1beta1.AdmissionReview, patches []Patch) *v1bet
 }
 
 func createPatchesFromAnnotations(base, extra map[string]string) []Patch {
-	patches := make([]Patch, 0)
-	for key, val := range extra {
-		if base == nil || base[key] == "" {
-			base = map[string]string{}
-			patches = append(patches, Patch{
-				Op:   "add",
-				Path: "/metadata/annotations",
-				Value: map[string]string{
-					key: val,
-				},
-			})
-		} else {
-			patches = append(patches, Patch{
-				Op:    "replace",
-				Path:  "/metadata/annotations/" + key,
-				Value: val,
-			})
+	if base == nil {
+		return []Patch{
+			Patch{
+				Op:    "add",
+				Path:  "/metadata/annotations",
+				Value: extra,
+			},
 		}
 	}
-	return patches
+
+	annotations := make(map[string]string)
+	for k, v := range base {
+		annotations[k] = v
+	}
+	if extra != nil {
+		for k, v := range extra {
+			annotations[k] = v
+		}
+	}
+
+	return []Patch{
+		Patch{
+			Op:    "replace",
+			Path:  "/metadata/annotations",
+			Value: annotations,
+		},
+	}
 }
 
 func mutate(review *v1beta1.AdmissionReview) *v1beta1.AdmissionReview {
