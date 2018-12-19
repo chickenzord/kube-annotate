@@ -25,6 +25,12 @@ func main() {
 	stop := make(chan os.Signal)
 	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
 
+	if rulesFile, ok := config.LoadRules(); ok {
+		log.Infof("loaded rules from %s", rulesFile)
+	} else {
+		log.Warn("no rules file defined")
+	}
+
 	tlsConfig, err := config.TLSConfig()
 	if err != nil {
 		log.WithError(err).Fatal("invalid TLS config")

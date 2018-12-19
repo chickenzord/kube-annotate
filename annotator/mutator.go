@@ -112,14 +112,12 @@ func respondWithPatches(review *v1beta1.AdmissionReview, patches []Patch) *v1bet
 	})
 }
 
-func createPatchesFromAnnotations(base, extra map[string]string) []Patch {
+func createPatchFromAnnotations(base, extra map[string]string) Patch {
 	if base == nil {
-		return []Patch{
-			Patch{
-				Op:    "add",
-				Path:  "/metadata/annotations",
-				Value: extra,
-			},
+		return Patch{
+			Op:    "add",
+			Path:  "/metadata/annotations",
+			Value: extra,
 		}
 	}
 
@@ -133,12 +131,10 @@ func createPatchesFromAnnotations(base, extra map[string]string) []Patch {
 		}
 	}
 
-	return []Patch{
-		Patch{
-			Op:    "replace",
-			Path:  "/metadata/annotations",
-			Value: annotations,
-		},
+	return Patch{
+		Op:    "replace",
+		Path:  "/metadata/annotations",
+		Value: annotations,
 	}
 }
 
@@ -149,10 +145,16 @@ func mutate(review *v1beta1.AdmissionReview) *v1beta1.AdmissionReview {
 	}
 
 	log.WithData(review).Debug("processing AdmissionReview")
+	patches := make([]Patch, 0)
 	for _, rule := range config.Rules {
 		if rule.Selector.AsSelector().Matches(labels.Set(pod.Labels)) {
-			return respondWithPatches(review, createPatchesFromAnnotations(pod.Annotations, rule.Annotations))
+			patch := createPatchFromAnnotations(pod.Annotations, rule.Annotations)
+			patches = append(patches, patch)
 		}
+	}
+
+	if len(patches) > 0 {
+		return respondWithPatches(review, patches)
 	}
 
 	return respondWithSkip(review)

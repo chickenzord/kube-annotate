@@ -2,9 +2,7 @@ package config
 
 import (
 	"io/ioutil"
-	"os"
 
-	"github.com/sirupsen/logrus"
 	yaml "gopkg.in/yaml.v2"
 	"k8s.io/apimachinery/pkg/labels"
 )
@@ -15,19 +13,17 @@ type Rule struct {
 	Annotations map[string]string `yaml:"annotations" json:"annotations"`
 }
 
-//Rules rules
-var Rules []Rule
-
-func init() {
-	var rulesFile string
-	if val, ok := os.LookupEnv("RULES_FILE"); ok {
-		rulesFile = val
-	} else {
-		rulesFile = "config.yaml"
+//LoadRules initialize rules from config source
+func LoadRules() (string, bool) {
+	if RulesFile == "" {
+		return RulesFile, false
 	}
-	rulesBytes, err := ioutil.ReadFile(rulesFile)
+
+	rulesBytes, err := ioutil.ReadFile(RulesFile)
 	if err != nil {
-		logrus.Errorf("Failed to read rules file: %v", err)
+		AppLogger.Errorf("Failed to read rules file: %v", err)
 	}
 	yaml.Unmarshal(rulesBytes, &Rules)
+
+	return RulesFile, true
 }
