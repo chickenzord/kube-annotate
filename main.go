@@ -22,6 +22,7 @@ import (
 var log = config.AppLogger
 
 func main() {
+	log.Infof("starting kube-annotate version %s (%s)", config.Version, config.GitCommit)
 	stop := make(chan os.Signal)
 	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
 
