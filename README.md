@@ -2,8 +2,9 @@
 
 [![Build Status](https://travis-ci.org/chickenzord/kube-annotate.svg?branch=master)](https://travis-ci.org/chickenzord/kube-annotate)
 [![Go Report Card](https://goreportcard.com/badge/github.com/chickenzord/kube-annotate)](https://goreportcard.com/report/github.com/chickenzord/kube-annotate)
-[![Automated Docker Build](https://img.shields.io/docker/automated/chickenzord/kube-annotate.svg?style=flat-square)](https://hub.docker.com/r/chickenzord/kube-annotate/) 
-[![Docker Pulls](https://img.shields.io/docker/pulls/chickenzord/kube-annotate.svg?style=flat-square)](https://hub.docker.com/r/chickenzord/kube-annotate/)
+[![codecov](https://codecov.io/gh/chickenzord/kube-annotate/branch/master/graph/badge.svg)](https://codecov.io/gh/chickenzord/kube-annotate)
+[![Automated Docker Build](https://img.shields.io/docker/automated/chickenzord/kube-annotate.svg)](https://hub.docker.com/r/chickenzord/kube-annotate/) 
+[![Docker Pulls](https://img.shields.io/docker/pulls/chickenzord/kube-annotate.svg)](https://hub.docker.com/r/chickenzord/kube-annotate/)
 
 Kubernetes mutating admission webhook to automatically annotate pods.
 
