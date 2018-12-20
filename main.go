@@ -23,13 +23,12 @@ var log = config.AppLogger
 
 func main() {
 	log.Infof("starting kube-annotate version %s (%s)", config.Version, config.GitCommit)
+
 	stop := make(chan os.Signal)
 	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
 
-	if rulesFile, ok := config.LoadRules(); ok {
-		log.Infof("loaded rules from %s", rulesFile)
-	} else {
-		log.Warn("no rules file defined")
+	if err := config.InitRules(); err != nil {
+		log.Fatalf("cannot initialize rules: %v", err)
 	}
 
 	tlsConfig, err := config.TLSConfig()

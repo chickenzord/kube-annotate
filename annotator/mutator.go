@@ -42,10 +42,6 @@ func init() {
 	_ = v1.AddToScheme(runtimeScheme)
 }
 
-func mutationRequired(metadata *metav1.ObjectMeta) bool {
-	return false
-}
-
 func parseBody(r *http.Request) (*v1beta1.AdmissionReview, error) {
 	if r.ContentLength == 0 {
 		return nil, errors.New("empty body")
@@ -80,7 +76,6 @@ func respond(review *v1beta1.AdmissionReview, response *v1beta1.AdmissionRespons
 }
 
 func respondWithError(review *v1beta1.AdmissionReview, err error) *v1beta1.AdmissionReview {
-	log.WithData(review).WithError(err).Errorf("error mutating pod")
 	return respond(review, &v1beta1.AdmissionResponse{
 		Result: &metav1.Status{
 			Message: err.Error(),
@@ -89,7 +84,6 @@ func respondWithError(review *v1beta1.AdmissionReview, err error) *v1beta1.Admis
 }
 
 func respondWithSkip(review *v1beta1.AdmissionReview) *v1beta1.AdmissionReview {
-	log.Infof("Skipping Pod")
 	return respond(review, &v1beta1.AdmissionResponse{
 		Allowed: true,
 	})
@@ -98,10 +92,9 @@ func respondWithSkip(review *v1beta1.AdmissionReview) *v1beta1.AdmissionReview {
 func respondWithPatches(review *v1beta1.AdmissionReview, patches []Patch) *v1beta1.AdmissionReview {
 	patchesBytes, err := json.Marshal(patches)
 	if err != nil {
-		return respondWithError(review, errors.New("Cannot serialize patches to JSON"))
+		return respondWithError(review, fmt.Errorf("cannot serialize patches: %v", err))
 	}
 
-	log.WithData(review).Infof("Mutating Pod with %d patch(es)", len(patches))
 	return respond(review, &v1beta1.AdmissionResponse{
 		Allowed: true,
 		Patch:   patchesBytes,
@@ -139,11 +132,14 @@ func createPatchFromAnnotations(base, extra map[string]string) Patch {
 }
 
 func mutate(review *v1beta1.AdmissionReview) *v1beta1.AdmissionReview {
+	//deserialize pod
 	var pod corev1.Pod
 	if err := json.Unmarshal(review.Request.Object.Raw, &pod); err != nil {
+		log.WithData(review).WithError(err).Errorf("error mutating pod")
 		return respondWithError(review, errors.New("cannot deserialize pod from AdmissionRequest"))
 	}
 
+	//create patches based on rules
 	log.WithData(review).Debug("processing AdmissionReview")
 	patches := make([]Patch, 0)
 	for _, rule := range config.Rules {
@@ -154,8 +150,10 @@ func mutate(review *v1beta1.AdmissionReview) *v1beta1.AdmissionReview {
 	}
 
 	if len(patches) > 0 {
+		log.WithData(review).Infof("mutating Pod with %d patch(es)", len(patches))
 		return respondWithPatches(review, patches)
 	}
 
+	log.Infof("skipping Pod")
 	return respondWithSkip(review)
 }

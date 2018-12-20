@@ -23,9 +23,6 @@ var (
 	//TLSKey TLS key file to use
 	TLSKey string
 
-	//RulesFile path where the rules file located
-	RulesFile string
-
 	//Rules rules
 	Rules []Rule
 )
@@ -40,7 +37,6 @@ func init() {
 	TLSEnabled = os.Getenv("TLS_ENABLED") == "true"
 	TLSCert = os.Getenv("TLS_CRT")
 	TLSKey = os.Getenv("TLS_KEY")
-	RulesFile = os.Getenv("RULES_FILE")
 	Rules = []Rule{}
 
 	if TLSEnabled {

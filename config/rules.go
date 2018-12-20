@@ -2,6 +2,7 @@ package config
 
 import (
 	"io/ioutil"
+	"os"
 
 	yaml "gopkg.in/yaml.v2"
 	"k8s.io/apimachinery/pkg/labels"
@@ -13,17 +14,38 @@ type Rule struct {
 	Annotations map[string]string `yaml:"annotations" json:"annotations"`
 }
 
-//LoadRules initialize rules from config source
-func LoadRules() (string, bool) {
-	if RulesFile == "" {
-		return RulesFile, false
+//LoadRules load rules from config source
+func LoadRules(path string) ([]Rule, error) {
+	rules := make([]Rule, 0)
+	if path == "" {
+		return rules, nil
 	}
 
-	rulesBytes, err := ioutil.ReadFile(RulesFile)
+	rulesBytes, err := ioutil.ReadFile(path)
 	if err != nil {
-		AppLogger.Errorf("Failed to read rules file: %v", err)
+		return nil, err
 	}
-	yaml.Unmarshal(rulesBytes, &Rules)
+	yaml.Unmarshal(rulesBytes, &rules)
 
-	return RulesFile, true
+	return rules, nil
+}
+
+//InitRules initialize rules from config source
+func InitRules() error {
+	Rules = make([]Rule, 0)
+	rulesFile := os.Getenv("RULES_FILE")
+
+	if len(rulesFile) == 0 {
+		AppLogger.Warn("no rules file set")
+		return nil
+	}
+
+	rules, err := LoadRules(rulesFile)
+	if err != nil {
+		return err
+	}
+
+	AppLogger.Infof("loaded %d rule(s) from %s", len(rules), rulesFile)
+	Rules = rules
+	return nil
 }
