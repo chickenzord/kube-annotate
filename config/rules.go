@@ -21,7 +21,7 @@ func LoadRules() (string, bool) {
 
 	rulesBytes, err := ioutil.ReadFile(RulesFile)
 	if err != nil {
-		AppLogger.Errorf("Failed to read rules file: %v", err)
+		AppLogger.Errorf("failed to read rules file: %v", err)
 	}
 	yaml.Unmarshal(rulesBytes, &Rules)
 
