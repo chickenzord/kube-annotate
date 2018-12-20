@@ -1,0 +1,9 @@
+- selector:
+    app: postgres
+  annotations:
+    log.config.scalyr.com/include: 'false'
+- selector:
+    app: internal-app
+  annotations:
+    prometheus.io/port: '8081'
+    prometheus.io/scrape: 'true'
