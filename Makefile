@@ -14,6 +14,15 @@ test:
 build:
 	go build -o $(BUILD_OUTPUT) -ldflags="$$(govvv -flags -pkg $(PACKAGE)/config)" .
 
+build-all:
+	mkdir -p bin
+	rm -f bin/*
+	for GOOS in darwin linux; do \
+		for GOARCH in 386 amd64; do \
+			BUILD_OUTPUT="bin/kube-annotate-$$GOOS-$$GOARCH" CGO_ENABLED=0 $(MAKE) build; \
+		done; \
+	done;
+
 run:
 	go run .
 
