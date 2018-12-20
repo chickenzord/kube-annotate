@@ -1,16 +1,39 @@
 language: go
-
 go:
 - 1.11.x
+
+services:
+- docker
 
 env:
 - DEP_VERSION=0.5.0
 
 before_script:
-- curl -L -s https://github.com/golang/dep/releases/download/v${DEP_VERSION}/dep-linux-amd64 -o $GOPATH/bin/dep
+- curl -L -s https://github.com/golang/dep/releases/download/v${DEP_VERSION}/dep-linux-amd64
+  -o $GOPATH/bin/dep
 - chmod +x $GOPATH/bin/dep
-- dep ensure -v -vendor-only
+- make deps
 
 script:
-- go get -v github.com/stretchr/testify
-- go test -v -cover ./...
+- make test
+- make clean build-all-platforms
+
+after_success:
+- bash <(curl -s https://codecov.io/bash)
+
+deploy:
+- provider: releases
+  skip_cleanup: true
+  api_key:
+    secure: o0CE3ZGtH1a/9YRLAF2SaObYlrOE4ZxM8yb4Hj5T45RfnA9myCyNeOPByrs3bhkwmlfOFPYvoCp/dtZuhV+YU5LGbZJEKmFhHEv3n57M6D7TLGZW2i7L1btn643c5/QsPLKceL8/7xUiFEeZcEBkR5g5TYxJnhZpujtEB4e6ol3W2g2qQnBiKW0BySJu101PVTKWBSew9FOLiIojM7wU62cS/1eiTA8HPI6/lD3f8AXVtNoZnUPSKW5tf85t0W8PkR9OcLPdx2gggrsSjcV/gqhZZHEO0TC6Ps/6DO/k6cMDQaMBjIyRjkTHoGNLBWYBV0E7Yu0kjtInw1D+GoHWRwhiQZC1ooWedgC7C7Y4VRds60vOs17ymdL1iYyU5p0m+1ZPSMAApeXA4/6MzpuStLKTmigz3y0TU/nLY3LO7dqhLu6HSJUVVlGZDio4eQxG6Yxoo/IKnwntYBRFpy50iIYVpTdFfbywIYm8/mdurUN8/NZ5M1HeYC5viQIE4+z5zvErgrWbNU7eozsdTMyHunvvhezrSxl1/KM8BwazjRMCi0AJrJMyPxq1UlgHOkj1k/14rKD4WuUjjqlAYfI68/0RZWA5PCbJJPyHjk3qM79MT/DomqxrFpJ/YxgATaCmxy0gqCi8fusUpGS+qCCBkMsXU5fb01ag00LHAmSz/40=
+  file: bin/kube-annotate-*
+  file_glob: true
+  on:
+    tags: true
+- provider: script
+  skip_cleanup: true
+  script:
+    (echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin) &&
+    DOCKER_TAG=$TRAVIS_TAG make docker-build docker-push
+  on:
+    tags: true

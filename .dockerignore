@@ -1,8 +1,8 @@
-.git/
 .gitignore
 .dockerignore
 Dockerfile
-Makefile
 /vendor/
 /example/
 /kube/
+/bin/
+coverage.txt
