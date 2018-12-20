@@ -2,6 +2,8 @@ DOCKER_TAG ?= local
 DOCKER_IMAGE ?= chickenzord/kube-annotate:$(DOCKER_TAG)
 PACKAGE ?= github.com/chickenzord/kube-annotate
 BUILD_OUTPUT ?= bin/kube-annotate
+BUILD_GOOS ?= darwin linux
+BUILD_GOARCH ?= 386 amd64
 
 clean:
 	mkdir -p bin
@@ -20,9 +22,9 @@ build:
 	go build -o $(BUILD_OUTPUT) -ldflags="$$(govvv -flags -pkg $(PACKAGE)/config)" .
 
 build-all-platforms:
-	for GOOS in darwin linux; do \
-		for GOARCH in 386 amd64; do \
-			GOOS=$$GOOS
+	for GOOS in $(BUILD_GOOS); do \
+		for GOARCH in $(BUILD_GOARCH); do \
+			GOOS=$$GOOS \
 			GOARCH=$$GOARCH \
 			BUILD_OUTPUT="bin/kube-annotate-$$GOOS-$$GOARCH" \
 			CGO_ENABLED=0 \
