@@ -15,7 +15,7 @@ deps:
 	dep ensure -v -vendor-only
 
 test:
-	go test -cover ./...
+	go test -v -cover -coverprofile=coverage.txt -covermode=atomic ./...
 
 build:
 	GOOS=$(GOOS) GOARCH=$(GOARCH) \

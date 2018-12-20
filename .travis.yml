@@ -18,6 +18,9 @@ script:
 - make test
 - make clean build-all-platforms
 
+after_success:
+- bash <(curl -s https://codecov.io/bash)
+
 deploy:
 - provider: releases
   skip_cleanup: true
