@@ -10,8 +10,6 @@ import (
 
 //MutateHandler handles admission mutation
 func MutateHandler(w http.ResponseWriter, r *http.Request) {
-	logRequest(r)
-
 	admissionReview, err := parseBody(r)
 	if err != nil {
 		log.WithError(err).Error("cannot parse body")
@@ -35,8 +33,6 @@ func MutateHandler(w http.ResponseWriter, r *http.Request) {
 
 //RulesHandler handles rules
 func RulesHandler(w http.ResponseWriter, r *http.Request) {
-	logRequest(r)
-
 	payload, err := json.Marshal(config.Rules)
 	if err != nil {
 		log.WithError(err).Error("cannot encode rules")
