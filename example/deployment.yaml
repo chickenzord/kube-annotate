@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: kube-annotate
-        image: docker.io/chickenzord/kube-annotate:v0.3.3
+        image: docker.io/chickenzord/kube-annotate:v0.3.4
         imagePullPolicy: Always
         env:
         - name: TLS_ENABLED
