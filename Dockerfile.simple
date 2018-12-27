@@ -1,0 +1,5 @@
+FROM alpine:3.8 AS runtime
+
+RUN apk add -U --no-cache curl wget bash
+COPY bin/kube-annotate-linux-amd64 /bin/kube-annotate
+CMD ["kube-annotate"]

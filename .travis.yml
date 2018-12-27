@@ -16,10 +16,10 @@ before_script:
 
 script:
 - make test
-- make clean build-all-platforms
 
 after_success:
 - bash <(curl -s https://codecov.io/bash)
+- VERSION=$TRAVIS_BRANCH make check clean build-all
 
 deploy:
 - provider: releases
@@ -34,6 +34,10 @@ deploy:
   skip_cleanup: true
   script:
     (echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin) &&
-    DOCKER_TAG=$TRAVIS_TAG make docker-build docker-push
+      VERSION=$TRAVIS_BRANCH
+      DOCKERFILE=Dockerfile.simple
+      BUILD_GOOS=linux
+      BUILD_GOARCH=amd64
+      make docker-build docker-push
   on:
-    tags: true
+    condition: $TRAVIS_BRANCH = "master" || -n $TRAVIS_TAG
