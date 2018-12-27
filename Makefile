@@ -19,7 +19,7 @@ test:
 
 build:
 	GOOS=$(GOOS) GOARCH=$(GOARCH) \
-	go build -o $(BUILD_OUTPUT) -ldflags="$$(govvv -flags -pkg $(PACKAGE)/config)" .
+	go build -o $(BUILD_OUTPUT) -ldflags="$$(govvv -flags -pkg $(PACKAGE)/pkg/config)" ./cmd/kube-annotate
 
 build-all-platforms:
 	for GOOS in $(BUILD_GOOS); do \
@@ -33,7 +33,7 @@ build-all-platforms:
 	done;
 
 run:
-	go run .
+	go run ./cmd/kube-annotate
 
 docker-build:
 	docker build -t $(DOCKER_IMAGE) .
