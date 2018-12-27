@@ -1,0 +1,14 @@
+- _scheme: v2
+  conditions:
+    kind:
+      group:
+      kind: Pod
+      version: v1
+    matchLabels:
+      hello: world
+  patches:
+  - type: _JSONPatch
+    op:
+    path:
+    value:
+

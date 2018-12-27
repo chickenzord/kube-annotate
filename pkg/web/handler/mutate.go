@@ -1,23 +1,23 @@
-package annotator
+package handler
 
 import (
 	"encoding/json"
 	"fmt"
 	"net/http"
 
-	"github.com/chickenzord/kube-annotate/config"
+	"github.com/chickenzord/kube-annotate/pkg/mutator"
 )
 
 //MutateHandler handles admission mutation
 func MutateHandler(w http.ResponseWriter, r *http.Request) {
-	admissionReview, err := parseBody(r)
+	admissionReview, err := mutator.ParseBody(r)
 	if err != nil {
 		log.WithError(err).Error("cannot parse body")
 		http.Error(w, "cannot parse body", http.StatusBadRequest)
 		return
 	}
 
-	var result = mutate(admissionReview)
+	var result = mutator.Mutate(admissionReview)
 	resp, err := json.Marshal(result)
 	if err != nil {
 		log.WithError(err).Error("cannot encode response")
@@ -29,16 +29,4 @@ func MutateHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("cannot write response: %v", err), http.StatusInternalServerError)
 		return
 	}
-}
-
-//RulesHandler handles rules
-func RulesHandler(w http.ResponseWriter, r *http.Request) {
-	payload, err := json.Marshal(config.Rules)
-	if err != nil {
-		log.WithError(err).Error("cannot encode rules")
-		http.Error(w, fmt.Sprintf("cannot encode rules: %v", err), http.StatusInternalServerError)
-		return
-	}
-	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprint(w, string(payload))
 }

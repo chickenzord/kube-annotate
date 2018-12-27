@@ -1,4 +1,4 @@
-package annotator
+package mutator
 
 import (
 	"testing"

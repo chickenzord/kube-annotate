@@ -8,9 +8,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/chickenzord/kube-annotate/annotator"
-	"github.com/chickenzord/kube-annotate/config"
-	"github.com/chickenzord/kube-annotate/web"
+	"github.com/chickenzord/kube-annotate/pkg/config"
+	"github.com/chickenzord/kube-annotate/pkg/web/handler"
 	"github.com/gorilla/mux"
 	negronilogrus "github.com/meatballhat/negroni-logrus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -37,7 +36,7 @@ func main() {
 	}
 
 	rInternal := mux.NewRouter()
-	rInternal.HandleFunc("/health", web.HealthHandler)
+	rInternal.HandleFunc("/health", handler.HealthHandler)
 	rInternal.Handle("/metrics", promhttp.Handler())
 	nInternal := negroni.New()
 	nInternal.UseHandler(rInternal)
@@ -52,8 +51,8 @@ func main() {
 	mProm := promnegroni.Handler("", prommiddleware.NewDefault())
 
 	rServer := mux.NewRouter()
-	rServer.HandleFunc("/mutate", annotator.MutateHandler)
-	rServer.HandleFunc("/rules", annotator.RulesHandler)
+	rServer.HandleFunc("/mutate", handler.MutateHandler)
+	rServer.HandleFunc("/rules", handler.RulesHandler)
 	nServer := negroni.New(mLogger, mProm)
 	nServer.UseHandler(rServer)
 	server := &http.Server{

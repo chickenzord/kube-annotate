@@ -1,4 +1,4 @@
-package annotator
+package mutator
 
 import (
 	"encoding/json"
@@ -7,7 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/chickenzord/kube-annotate/config"
+	"github.com/chickenzord/kube-annotate/pkg/config"
 	"k8s.io/api/admission/v1beta1"
 	admissionregistrationv1beta1 "k8s.io/api/admissionregistration/v1beta1"
 	v1 "k8s.io/api/apps/v1"
@@ -42,7 +42,8 @@ func init() {
 	_ = v1.AddToScheme(runtimeScheme)
 }
 
-func parseBody(r *http.Request) (*v1beta1.AdmissionReview, error) {
+//ParseBody parses http.Request into AdmissionReview
+func ParseBody(r *http.Request) (*v1beta1.AdmissionReview, error) {
 	if r.ContentLength == 0 {
 		return nil, errors.New("empty body")
 	}
@@ -131,7 +132,8 @@ func createPatchFromAnnotations(base, extra map[string]string) Patch {
 	}
 }
 
-func mutate(review *v1beta1.AdmissionReview) *v1beta1.AdmissionReview {
+//Mutate mutates AdmissionReview
+func Mutate(review *v1beta1.AdmissionReview) *v1beta1.AdmissionReview {
 	//deserialize pod
 	var pod corev1.Pod
 	if err := json.Unmarshal(review.Request.Object.Raw, &pod); err != nil {
