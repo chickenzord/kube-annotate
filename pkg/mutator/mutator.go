@@ -154,7 +154,7 @@ func Mutate(review *v1beta1.AdmissionReview) *v1beta1.AdmissionReview {
 	}
 
 	if len(patches) > 0 {
-		log.WithData(review).Infof("mutating Pod with %d patch(es)", len(patches))
+		log.WithData(patches).Infof("mutating Pod with %d patch(es)", len(patches))
 		return respondWithPatches(review, patches)
 	}
 
