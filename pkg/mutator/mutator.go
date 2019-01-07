@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
-	"net/http"
 
 	"github.com/chickenzord/kube-annotate/pkg/config"
 	"k8s.io/api/admission/v1beta1"
@@ -40,29 +38,6 @@ func init() {
 	// defaulting with webhooks:
 	// https://github.com/kubernetes/kubernetes/issues/57982
 	_ = v1.AddToScheme(runtimeScheme)
-}
-
-//ParseBody parses http.Request into AdmissionReview
-func ParseBody(r *http.Request) (*v1beta1.AdmissionReview, error) {
-	if r.ContentLength == 0 {
-		return nil, errors.New("empty body")
-	}
-
-	if contentType := r.Header.Get("Content-Type"); contentType != "application/json" {
-		return nil, fmt.Errorf("invalid content type: %s", contentType)
-	}
-
-	data, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		return nil, fmt.Errorf("cannot read body: %v", err)
-	}
-
-	result := v1beta1.AdmissionReview{}
-	if _, _, err := deserializer.Decode(data, nil, &result); err != nil {
-		return nil, fmt.Errorf("cannot deserialize data to AdmissionReview: %v", err)
-	}
-
-	return &result, nil
 }
 
 func respond(review *v1beta1.AdmissionReview, response *v1beta1.AdmissionResponse) *v1beta1.AdmissionReview {
@@ -130,6 +105,33 @@ func createPatchFromAnnotations(base, extra map[string]string) Patch {
 		Path:  "/metadata/annotations",
 		Value: annotations,
 	}
+}
+
+//ParseBytes parses AdmissionReview into bytes
+func ParseBytes(data []byte) (*v1beta1.AdmissionReview, error) {
+	result := v1beta1.AdmissionReview{}
+	if _, _, err := deserializer.Decode(data, nil, &result); err != nil {
+		return nil, fmt.Errorf("cannot deserialize data to AdmissionReview: %v", err)
+	}
+
+	return &result, nil
+}
+
+//MutateBytes mutates AdmissionReview bytes
+func MutateBytes(data []byte) ([]byte, error) {
+	reviewRequest := v1beta1.AdmissionReview{}
+	if _, _, err := deserializer.Decode(data, nil, &reviewRequest); err != nil {
+		return nil, fmt.Errorf("cannot decode data to AdmissionReview: %v", err)
+	}
+
+	reviewResponse := Mutate(&reviewRequest)
+
+	result, err := json.Marshal(reviewResponse)
+	if err != nil {
+		return nil, fmt.Errorf("cannot encode response: %v", err)
+	}
+
+	return result, nil
 }
 
 //Mutate mutates AdmissionReview

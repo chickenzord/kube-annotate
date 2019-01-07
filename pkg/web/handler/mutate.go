@@ -1,8 +1,9 @@
 package handler
 
 import (
-	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"mime"
 	"net/http"
 
 	"github.com/chickenzord/kube-annotate/pkg/mutator"
@@ -10,23 +11,31 @@ import (
 
 //MutateHandler handles admission mutation
 func MutateHandler(w http.ResponseWriter, r *http.Request) {
-	admissionReview, err := mutator.ParseBody(r)
-	if err != nil {
-		log.WithError(err).Error("cannot parse body")
-		http.Error(w, "cannot parse body", http.StatusBadRequest)
+	// Parse request
+	if r.ContentLength == 0 {
+		writeJsend(w, "empty body", nil, http.StatusBadRequest)
+		return
+	}
+	contentType, _, _ := mime.ParseMediaType(r.Header.Get("Content-Type"))
+	if contentType != "application/json" {
+		msg := fmt.Sprintf("invalid content type: %s", contentType)
+		writeJsend(w, msg, nil, http.StatusBadRequest)
+		return
+	}
+	data, err := ioutil.ReadAll(r.Body)
+	if err != nil || data == nil {
+		writeJsend(w, "cannot read body", err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	var result = mutator.Mutate(admissionReview)
-	resp, err := json.Marshal(result)
+	// Write response
+	response, err := mutator.MutateBytes(data)
 	if err != nil {
-		log.WithError(err).Error("cannot encode response")
-		http.Error(w, fmt.Sprintf("cannot encode response: %v", err), http.StatusInternalServerError)
+		writeJsend(w, "cannot mutate payload", err.Error(), http.StatusInternalServerError)
 		return
 	}
-	if _, err := w.Write(resp); err != nil {
-		log.WithError(err).Error("cannot write response")
-		http.Error(w, fmt.Sprintf("cannot write response: %v", err), http.StatusInternalServerError)
+	if _, err := w.Write(response); err != nil {
+		writeJsend(w, "cannot write response", err.Error(), http.StatusInternalServerError)
 		return
 	}
 }

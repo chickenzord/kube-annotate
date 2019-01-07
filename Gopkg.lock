@@ -8,6 +8,18 @@
   revision = "3a771d992973f24aa725d07868b467d1ddfceafb"
 
 [[projects]]
+  name = "github.com/davecgh/go-spew"
+  packages = ["spew"]
+  revision = "8991bc29aa16c548c550c7ff78260e27b9ab7c73"
+  version = "v1.1.1"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/gamegos/jsend"
+  packages = ["."]
+  revision = "f47e169f3d768aeab828e47649413b719372981f"
+
+[[projects]]
   name = "github.com/gogo/protobuf"
   packages = [
     "proto",
@@ -77,6 +89,12 @@
   version = "1.0.1"
 
 [[projects]]
+  name = "github.com/pmezard/go-difflib"
+  packages = ["difflib"]
+  revision = "792786c7400a136282c1664665ae0a8db921c6c2"
+  version = "v1.0.0"
+
+[[projects]]
   name = "github.com/prometheus/client_golang"
   packages = [
     "prometheus",
@@ -100,7 +118,7 @@
     "internal/bitbucket.org/ww/goautoneg",
     "model"
   ]
-  revision = "4724e9255275ce38f7179b2478abeae4e28c904f"
+  revision = "b1c43a6df3aedba268353d940b5974f05037ed5c"
 
 [[projects]]
   branch = "master"
@@ -111,13 +129,13 @@
     "nfs",
     "xfs"
   ]
-  revision = "1dc9a6cbc91aacc3e8b2d63db4d2e957a5394ac4"
+  revision = "b1a0a9a36d7453ba0f62578b99712f3a6c5f82d1"
 
 [[projects]]
   name = "github.com/sirupsen/logrus"
   packages = ["."]
-  revision = "bcd833dfe83d3cebad139e4a29ed79cb2318bf95"
-  version = "v1.2.0"
+  revision = "e1e72e9de974bd926e5c56f83753fba2df402ce5"
+  version = "v1.3.0"
 
 [[projects]]
   name = "github.com/slok/go-prometheus-middleware"
@@ -129,6 +147,12 @@
   version = "v0.4.0"
 
 [[projects]]
+  name = "github.com/stretchr/testify"
+  packages = ["assert"]
+  revision = "ffdc059bfe9ce6a4e144ba849dbedead332c6053"
+  version = "v1.3.0"
+
+[[projects]]
   name = "github.com/urfave/negroni"
   packages = ["."]
   revision = "c6a59be0ce122566695fbd5e48a77f8f10c8a63a"
@@ -138,7 +162,7 @@
   branch = "master"
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
-  revision = "505ab145d0a99da450461ae2c1a9f6cd10d1f447"
+  revision = "ff983b9c42bc9fbf91556e191cc8efb585c16908"
 
 [[projects]]
   branch = "master"
@@ -149,7 +173,7 @@
     "http2/hpack",
     "idna"
   ]
-  revision = "610586996380ceef02dd726cc09df7e00a3f8e56"
+  revision = "927f97764cc334a6575f4b7a1584a147864d5723"
 
 [[projects]]
   branch = "master"
@@ -158,7 +182,7 @@
     "unix",
     "windows"
   ]
-  revision = "7da8ea5c81829e397bdf930c5d8ba4b703616f33"
+  revision = "cb59ee3660675d463e86971646692ea3e470021c"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -239,7 +263,7 @@
     "pkg/watch",
     "third_party/forked/golang/reflect"
   ]
-  revision = "57dc7e687b5426ecb5df4cabdcdce30fddb74f22"
+  revision = "849b284f3b756a3fbb5084b09d2718dd41373068"
 
 [[projects]]
   name = "k8s.io/klog"
@@ -256,6 +280,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "9d4640410d7fa84f4c749f59351c3c1426cab3beee41cf810f80b4ae5483d7fe"
+  inputs-digest = "15657369aa6b6ab41909d7c0b384a6d5f7bd6380f8841b0ca14d23e3b02b41f7"
   solver-name = "gps-cdcl"
   solver-version = 1
